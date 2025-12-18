@@ -1,0 +1,16 @@
+{
+  "POST /api/v1/auth/login": {
+    "email": "string",
+    "password": "string"
+  },
+  "POST /api/v1/server/add": {
+    "name": "string",
+    "ip": "string",
+    "port": "integer",
+    "apiKey": "string"
+  },
+  "POST /api/v1/website/add": {
+    "domain": "string",
+    "serverId": "string"
+  }
+}

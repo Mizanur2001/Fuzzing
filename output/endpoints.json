@@ -1,0 +1,42 @@
+[
+  {
+    "method": "GET",
+    "path": "/",
+    "summary": "Heartbeat"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "summary": "Obtain JWT"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/server",
+    "summary": "List servers"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/server/add",
+    "summary": "Register server"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/server/check",
+    "summary": "Run server health sweep"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/website",
+    "summary": "List websites"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/website/add",
+    "summary": "Register website"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/website/check",
+    "summary": "Run website uptime sweep"
+  }
+]
