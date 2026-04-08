@@ -3,6 +3,7 @@ const path = require("path");
 
 const extractOpenAPI = require("./extractor/extractOpenAPI");
 const runFuzzer = require("./fuzzer/fuzzRunner");
+const { generateReport } = require("./analyzer/reportGenerator");
 const config = require("./config/config");
 
 const OPENAPI_URL = config.OpenApiUrl;
@@ -11,7 +12,8 @@ const OUTPUT_DIR = path.join(__dirname, "output");
 const PAYLOADS_PATH = path.join(OUTPUT_DIR, "payloads.json");
 
 async function main() {
-    console.log("🚀 Starting Fuzzing Framework");
+    console.log("🚀 Starting Fuzzing Framework v3.0.0");
+    console.log(`   Target: ${config.baseURL}`);
 
     if (!fs.existsSync(OUTPUT_DIR)) {
         fs.mkdirSync(OUTPUT_DIR);
@@ -23,20 +25,21 @@ async function main() {
     }
 
     const payloads = JSON.parse(fs.readFileSync(PAYLOADS_PATH, "utf-8"));
+    const allFindings = {};
 
-    // 🔥 FUZZ ALL POST ENDPOINTS
     for (const key of Object.keys(payloads)) {
         const [method, endpoint] = key.split(" ");
 
-        if (method !== "POST") continue;
+        console.log(`\n🔥 Fuzzing: ${method} ${endpoint}`);
 
-        console.log(`\n🔥 Fuzzing endpoint: ${endpoint}`);
-        console.log(`📦 Schema:`, payloads[key]);
-
-        await runFuzzer(endpoint, payloads[key]);
+        const findings = await runFuzzer(method, endpoint, payloads[key]);
+        allFindings[`${method} ${endpoint}`] = findings;
     }
 
-    console.log("\n✅ All endpoints fuzzed");
+    // Generate vulnerability report
+    generateReport(allFindings);
+
+    console.log("\n✅ Fuzzing complete");
 }
 
 main().catch(err => console.error("❌ Fatal error:", err));
