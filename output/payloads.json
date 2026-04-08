@@ -1,16 +1,53 @@
 {
+  "GET /": {
+    "body": null,
+    "pathParams": [],
+    "queryParams": []
+  },
   "POST /api/v1/auth/login": {
-    "email": "string",
-    "password": "string"
+    "body": {
+      "email": "string",
+      "password": "string"
+    },
+    "pathParams": [],
+    "queryParams": []
+  },
+  "GET /api/v1/server": {
+    "body": null,
+    "pathParams": [],
+    "queryParams": []
   },
   "POST /api/v1/server/add": {
-    "name": "string",
-    "ip": "string",
-    "port": "integer",
-    "apiKey": "string"
+    "body": {
+      "name": "string",
+      "ip": "string",
+      "port": "integer",
+      "apiKey": "string"
+    },
+    "pathParams": [],
+    "queryParams": []
+  },
+  "GET /api/v1/server/check": {
+    "body": null,
+    "pathParams": [],
+    "queryParams": []
+  },
+  "GET /api/v1/website": {
+    "body": null,
+    "pathParams": [],
+    "queryParams": []
   },
   "POST /api/v1/website/add": {
-    "domain": "string",
-    "serverId": "string"
+    "body": {
+      "domain": "string",
+      "serverId": "string"
+    },
+    "pathParams": [],
+    "queryParams": []
+  },
+  "GET /api/v1/website/check": {
+    "body": null,
+    "pathParams": [],
+    "queryParams": []
   }
 }

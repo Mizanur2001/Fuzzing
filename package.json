@@ -1,12 +1,14 @@
 {
   "name": "fuzzing",
-  "version": "3.0.0",
-  "description": "",
+  "version": "4.0.0",
+  "description": "OpenAPI-driven API security fuzzing framework with intelligent payload selection, auth testing, blind injection detection, and deduplicated reporting",
   "license": "ISC",
   "author": "Mizanur Rahaman",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "fuzz": "node index.js",
+    "extract": "node -e \"require('./extractor/extractOpenAPI')(require('./config/config').OpenApiUrl)\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
