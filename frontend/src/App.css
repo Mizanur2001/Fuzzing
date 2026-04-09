@@ -1,0 +1,700 @@
+/* ── Reset & Base ──────────────────────────────────────── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-input: #0d1117;
+    --border: #30363d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --accent: #58a6ff;
+    --success: #3fb950;
+    --warning: #d29922;
+    --danger: #f85149;
+    --high: #f0883e;
+    --radius: 8px;
+    --radius-lg: 12px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ── App Layout ───────────────────────────────────────── */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+/* ── Navbar ────────────────────────────────────────────── */
+.navbar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.navbar-brand .logo {
+    font-size: 1.3rem;
+}
+
+.navbar-brand .version {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 400;
+}
+
+/* ── Main Content ─────────────────────────────────────── */
+.main-content {
+    flex: 1;
+    max-width: 920px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* ── Panel / Card ─────────────────────────────────────── */
+.panel-header h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.panel-header .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.panel h3 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+}
+
+/* ── Error Banner ─────────────────────────────────────── */
+.error-banner {
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--danger);
+}
+
+.error-banner button {
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* ── Form Elements ────────────────────────────────────── */
+.config-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+    font-size: 0.85rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn {
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn:hover {
+    background: var(--border);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+}
+
+.btn-secondary {
+    background: transparent;
+    border-color: var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-tertiary);
+}
+
+/* ── Progress Section ─────────────────────────────────── */
+.progress-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.current-progress {
+    margin-bottom: 1.5rem;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.endpoint-name {
+    font-weight: 600;
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    font-size: 0.9rem;
+}
+
+.progress-stats {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-pct {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ── Spinner ──────────────────────────────────────────── */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--bg-tertiary);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Endpoint List ────────────────────────────────────── */
+.endpoint-list {
+    margin-top: 1.5rem;
+}
+
+.endpoint-list h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.endpoint-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    transition: background 0.15s;
+}
+
+.endpoint-item.done {
+    opacity: 0.7;
+}
+
+.endpoint-item.running {
+    background: rgba(88, 166, 255, 0.08);
+}
+
+.endpoint-item.pending {
+    opacity: 0.35;
+}
+
+.endpoint-icon {
+    font-size: 0.85rem;
+    width: 20px;
+    text-align: center;
+}
+
+.method {
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    min-width: 52px;
+    text-align: center;
+    letter-spacing: 0.03em;
+}
+
+.method-get {
+    background: rgba(63, 185, 80, 0.2);
+    color: var(--success);
+}
+.method-post {
+    background: rgba(88, 166, 255, 0.2);
+    color: var(--accent);
+}
+.method-put {
+    background: rgba(210, 153, 34, 0.2);
+    color: var(--warning);
+}
+.method-delete {
+    background: rgba(248, 81, 73, 0.2);
+    color: var(--danger);
+}
+.method-patch {
+    background: rgba(240, 136, 62, 0.2);
+    color: var(--high);
+}
+
+.ep-path {
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+.findings-badge {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+}
+
+.findings-badge.running {
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+}
+
+/* ── Summary Grid ─────────────────────────────────────── */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.summary-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.summary-card.accent {
+    border-color: var(--accent);
+    background: rgba(88, 166, 255, 0.05);
+}
+
+.card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.card-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* ── Report Grid ──────────────────────────────────────── */
+.report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ── Severity Bars ────────────────────────────────────── */
+.severity-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.severity-label {
+    width: 70px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.severity-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.severity-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.severity-count {
+    width: 55px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+}
+
+/* ── Type Rows ────────────────────────────────────────── */
+.type-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--bg-tertiary);
+    font-size: 0.85rem;
+}
+
+.type-row:last-child {
+    border-bottom: none;
+}
+
+.type-count {
+    color: var(--text-secondary);
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+}
+
+/* ── Endpoint Findings ────────────────────────────────── */
+.ep-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.ep-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 0.9rem;
+}
+
+.ep-header:hover {
+    background: var(--bg-tertiary);
+}
+
+.ep-toggle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    width: 16px;
+}
+
+.ep-name {
+    flex: 1;
+    font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+    font-size: 0.85rem;
+}
+
+.ep-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.ep-raw {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.ep-findings {
+    border-top: 1px solid var(--border);
+    padding: 0.5rem;
+}
+
+/* ── Finding ──────────────────────────────────────────── */
+.finding {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-primary);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--border);
+}
+
+.finding.severity-critical {
+    border-left-color: #ff3366;
+}
+.finding.severity-high {
+    border-left-color: #f0883e;
+}
+.finding.severity-medium {
+    border-left-color: #d29922;
+}
+.finding.severity-low {
+    border-left-color: #8b949e;
+}
+
+.finding-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.finding-badge {
+    font-size: 0.6rem;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.finding-type {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.finding-count {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.finding-detail {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.3rem;
+}
+
+.finding-evidence {
+    margin-top: 0.3rem;
+}
+
+.finding-evidence code {
+    display: block;
+    background: var(--bg-tertiary);
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    word-break: break-all;
+    white-space: pre-wrap;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.finding-samples {
+    margin-top: 0.4rem;
+}
+
+.sample-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.sample-payload {
+    display: block;
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+    word-break: break-all;
+    white-space: pre-wrap;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+/* ── Report Actions ───────────────────────────────────── */
+.report-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* ── Error Panel ──────────────────────────────────────── */
+.error-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+}
+
+.error-panel h2 {
+    color: var(--danger);
+    margin-bottom: 0.75rem;
+}
+
+.error-panel p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    word-break: break-word;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .progress-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -63,7 +63,7 @@ function buildUrl(baseEndpoint, meta, payload) {
  * @param {Object} endpointInfo - { body, pathParams, queryParams } from extractor
  * @returns {Array} results with findings for the report generator
  */
-async function runFuzzer(method, endpoint, endpointInfo) {
+async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
     const fuzzCases = generateFuzzPayloads(endpointInfo, method);
     const allResults = loadExistingResults();
     const key = `${method} ${endpoint}`;
@@ -176,8 +176,12 @@ async function runFuzzer(method, endpoint, endpointInfo) {
 
         endpointFindings.push(result);
 
-        // Progress indicator every 50 requests
-        if (completed % 50 === 0 || completed === total) {
+        // Progress indicator
+        if (onProgress) {
+            if (completed % 10 === 0 || completed === total) {
+                onProgress({ completed, total, findingsCount });
+            }
+        } else if (completed % 50 === 0 || completed === total) {
             process.stdout.write(
                 `\r  [${completed}/${total}] ${findingsCount} findings so far`
             );
