@@ -19,6 +19,7 @@ export default function App() {
     const [endpointStatus, setEndpointStatus] = useState({});
     const [report, setReport] = useState(null);
     const [error, setError] = useState(null);
+    const [skipPending, setSkipPending] = useState(false);
     const esRef = useRef(null);
 
     // ── SSE connection ─────────────────────────────────────
@@ -39,6 +40,7 @@ export default function App() {
 
         es.addEventListener("endpoint-start", (e) => {
             const data = JSON.parse(e.data);
+            setSkipPending(false);
             setEndpointStatus((prev) => ({
                 ...prev,
                 [data.index]: { ...data, status: "running", findingsCount: 0 },
@@ -55,19 +57,38 @@ export default function App() {
                     completed: data.completed,
                     total: data.total,
                     findingsCount: data.findingsCount,
-                    status: "running",
+                    status:
+                        prev[data.endpointIndex]?.status === "skipping"
+                            ? "skipping"
+                            : "running",
+                },
+            }));
+        });
+
+        es.addEventListener("endpoint-skip-requested", (e) => {
+            const data = JSON.parse(e.data);
+            setSkipPending(true);
+            setEndpointStatus((prev) => ({
+                ...prev,
+                [data.index]: {
+                    ...prev[data.index],
+                    status: "skipping",
                 },
             }));
         });
 
         es.addEventListener("endpoint-done", (e) => {
             const data = JSON.parse(e.data);
+            setSkipPending(false);
             setEndpointStatus((prev) => ({
                 ...prev,
                 [data.index]: {
                     ...prev[data.index],
-                    status: "done",
+                    status: data.skipped ? "skipped" : "done",
                     findingsCount: data.findingsCount,
+                    completed: data.completed ?? prev[data.index]?.completed,
+                    total: data.total ?? prev[data.index]?.total,
+                    skipped: data.skipped === true,
                 },
             }));
         });
@@ -78,12 +99,14 @@ export default function App() {
                 const res = await fetch("/api/report");
                 if (res.ok) setReport(await res.json());
             } catch {}
+            setSkipPending(false);
             setPhase("complete");
         });
 
         es.addEventListener("fuzz-error", (e) => {
             const data = JSON.parse(e.data);
             setError(data.message);
+            setSkipPending(false);
             es.close();
             setPhase("error");
         });
@@ -148,7 +171,25 @@ export default function App() {
         setEndpointStatus({});
         setProgress({ phase: "extracting" });
         setReport(null);
+        setSkipPending(false);
         connectSSE();
+    };
+
+    const skipCurrentEndpoint = async () => {
+        if (skipPending || progress?.phase !== "fuzzing") return;
+
+        setSkipPending(true);
+        try {
+            const res = await fetch("/api/fuzz/skip-current", { method: "POST" });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.error || "Failed to skip endpoint");
+                setSkipPending(false);
+            }
+        } catch {
+            setError("Failed to skip endpoint");
+            setSkipPending(false);
+        }
     };
 
     const newScan = () => {
@@ -157,6 +198,7 @@ export default function App() {
         setEndpoints([]);
         setEndpointStatus({});
         setError(null);
+        setSkipPending(false);
     };
 
     if (!config) {
@@ -215,6 +257,8 @@ export default function App() {
                         endpoints={endpoints}
                         endpointStatus={endpointStatus}
                         progress={progress}
+                        onSkipEndpoint={skipCurrentEndpoint}
+                        skipPending={skipPending}
                     />
                 )}
 

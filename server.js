@@ -20,7 +20,13 @@ const RESULTS_PATH = path.join(OUTPUT_DIR, "results.json");
 const REPORT_PATH = path.join(OUTPUT_DIR, "vulnerability-report.json");
 
 // ── State ──────────────────────────────────────────────────
-let fuzzState = { running: false };
+let fuzzState = {
+    running: false,
+    currentEndpointIndex: null,
+    currentEndpoint: null,
+    skipRequested: false,
+    currentAbortController: null,
+};
 let sseClients = [];
 
 // ── SSE helpers ────────────────────────────────────────────
@@ -88,18 +94,66 @@ app.post("/api/fuzz/start", (req, res) => {
         return res.status(409).json({ error: "Fuzzing already in progress" });
     }
 
-    fuzzState.running = true;
+    fuzzState = {
+        running: true,
+        currentEndpointIndex: null,
+        currentEndpoint: null,
+        skipRequested: false,
+        currentAbortController: null,
+    };
     res.json({ status: "started" });
 
     runFuzzPipeline().catch(err => {
         broadcast("fuzz-error", { message: err.message });
-        fuzzState.running = false;
+        fuzzState = {
+            running: false,
+            currentEndpointIndex: null,
+            currentEndpoint: null,
+            skipRequested: false,
+            currentAbortController: null,
+        };
+    });
+});
+
+// ── API: Skip current endpoint ─────────────────────────────
+app.post("/api/fuzz/skip-current", (req, res) => {
+    if (!fuzzState.running || fuzzState.currentEndpointIndex === null) {
+        return res.status(409).json({ error: "No endpoint is currently running" });
+    }
+
+    if (fuzzState.skipRequested) {
+        return res.json({
+            status: "skip-pending",
+            index: fuzzState.currentEndpointIndex,
+            endpoint: fuzzState.currentEndpoint,
+        });
+    }
+
+    fuzzState.skipRequested = true;
+    if (fuzzState.currentAbortController) {
+        fuzzState.currentAbortController.abort();
+    }
+
+    broadcast("endpoint-skip-requested", {
+        index: fuzzState.currentEndpointIndex,
+        endpoint: fuzzState.currentEndpoint,
+    });
+
+    res.json({
+        status: "skip-requested",
+        index: fuzzState.currentEndpointIndex,
+        endpoint: fuzzState.currentEndpoint,
     });
 });
 
 // ── API: Get status ────────────────────────────────────────
 app.get("/api/fuzz/status", (req, res) => {
-    res.json({ running: fuzzState.running });
+    res.json({
+        running: fuzzState.running,
+        currentEndpointIndex: fuzzState.currentEndpointIndex,
+        currentEndpoint: fuzzState.currentEndpoint,
+        skipRequested: fuzzState.skipRequested,
+    });
 });
 
 // ── API: Get report ────────────────────────────────────────
@@ -161,6 +215,12 @@ async function runFuzzPipeline() {
         const si = key.indexOf(" ");
         const method = key.slice(0, si);
         const endpoint = key.slice(si + 1);
+        const endpointLabel = `${method} ${endpoint}`;
+
+        fuzzState.currentEndpointIndex = i;
+        fuzzState.currentEndpoint = endpointLabel;
+        fuzzState.skipRequested = false;
+        fuzzState.currentAbortController = new AbortController();
 
         broadcast("endpoint-start", { index: i, method, endpoint });
 
@@ -169,17 +229,32 @@ async function runFuzzPipeline() {
                 broadcast("progress", {
                     endpointIndex: i,
                     totalEndpoints: keys.length,
-                    endpoint: `${method} ${endpoint}`,
+                    endpoint: endpointLabel,
                     ...progress,
                 });
+            }, {
+                signal: fuzzState.currentAbortController.signal,
+                shouldSkip: () => fuzzState.skipRequested,
             });
 
             const fc = findings.reduce((s, r) => s + (r.findings?.length || 0), 0);
-            broadcast("endpoint-done", { index: i, endpoint: `${method} ${endpoint}`, findingsCount: fc });
-            allFindings[`${method} ${endpoint}`] = findings;
+            broadcast("endpoint-done", {
+                index: i,
+                endpoint: endpointLabel,
+                findingsCount: fc,
+                skipped: findings.skipped === true,
+                completed: findings.completed,
+                total: findings.total,
+            });
+            allFindings[endpointLabel] = findings;
         } catch (err) {
-            broadcast("endpoint-done", { index: i, endpoint: `${method} ${endpoint}`, findingsCount: 0, error: err.message });
-            allFindings[`${method} ${endpoint}`] = [];
+            broadcast("endpoint-done", { index: i, endpoint: endpointLabel, findingsCount: 0, error: err.message });
+            allFindings[endpointLabel] = [];
+        } finally {
+            fuzzState.currentEndpointIndex = null;
+            fuzzState.currentEndpoint = null;
+            fuzzState.skipRequested = false;
+            fuzzState.currentAbortController = null;
         }
     }
 
@@ -188,6 +263,10 @@ async function runFuzzPipeline() {
     generateReport(allFindings);
 
     fuzzState.running = false;
+    fuzzState.currentEndpointIndex = null;
+    fuzzState.currentEndpoint = null;
+    fuzzState.skipRequested = false;
+    fuzzState.currentAbortController = null;
     broadcast("complete", {});
 }
 

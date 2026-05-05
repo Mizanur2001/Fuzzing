@@ -1,4 +1,10 @@
-export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
+export default function FuzzProgress({
+    endpoints,
+    endpointStatus,
+    progress,
+    onSkipEndpoint,
+    skipPending,
+}) {
     const currentPhase = progress?.phase || "extracting";
 
     return (
@@ -18,14 +24,24 @@ export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
             {currentPhase === "fuzzing" && progress?.total > 0 && (
                 <div className="current-progress">
                     <div className="progress-info">
-                        <span className="endpoint-name">
-                            Endpoint {(progress.endpointIndex || 0) + 1}/
-                            {progress.totalEndpoints || "?"}: {progress.endpoint}
-                        </span>
-                        <span className="progress-stats">
-                            {progress.completed}/{progress.total} requests &middot;{" "}
-                            {progress.findingsCount} findings
-                        </span>
+                        <div>
+                            <span className="endpoint-name">
+                                Endpoint {(progress.endpointIndex || 0) + 1}/
+                                {progress.totalEndpoints || "?"}: {progress.endpoint}
+                            </span>
+                            <span className="progress-stats">
+                                {progress.completed}/{progress.total} requests &middot;{" "}
+                                {progress.findingsCount} findings
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn btn-warning btn-sm"
+                            onClick={onSkipEndpoint}
+                            disabled={skipPending}
+                        >
+                            {skipPending ? "Skipping..." : "Skip Endpoint"}
+                        </button>
                     </div>
                     <div className="progress-bar-container">
                         <div
@@ -54,11 +70,23 @@ export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
                         const st = endpointStatus[i];
                         const isDone = st?.status === "done";
                         const isRunning = st?.status === "running";
+                        const isSkipping = st?.status === "skipping";
+                        const isSkipped = st?.status === "skipped";
 
                         return (
                             <div
                                 key={i}
-                                className={`endpoint-item ${isDone ? "done" : isRunning ? "running" : "pending"}`}
+                                className={`endpoint-item ${
+                                    isDone
+                                        ? "done"
+                                        : isRunning
+                                          ? "running"
+                                          : isSkipping
+                                            ? "skipping"
+                                            : isSkipped
+                                              ? "skipped"
+                                              : "pending"
+                                }`}
                             >
                                 <span className="endpoint-icon" aria-hidden="true" />
                                 <span
@@ -70,6 +98,16 @@ export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
                                 {isDone && (
                                     <span className="findings-badge">
                                         {st.findingsCount} findings
+                                    </span>
+                                )}
+                                {isSkipped && (
+                                    <span className="findings-badge skipped">
+                                        skipped
+                                    </span>
+                                )}
+                                {isSkipping && (
+                                    <span className="findings-badge warning">
+                                        skipping...
                                     </span>
                                 )}
                                 {isRunning && st.total > 0 && (

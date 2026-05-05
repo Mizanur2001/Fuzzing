@@ -20,9 +20,13 @@ function saveResults(data) {
  * Measure a baseline response time by sending a valid request.
  * Used to detect blind injection (timing-based anomalies).
  */
-async function measureBaseline(method, url) {
+async function measureBaseline(method, url, options = {}) {
     const times = [];
+    const shouldSkip = () => options.shouldSkip?.() || options.signal?.aborted;
+
     for (let i = 0; i < 3; i++) {
+        if (shouldSkip()) return null;
+
         const start = Date.now();
         try {
             await axios({
@@ -33,9 +37,12 @@ async function measureBaseline(method, url) {
                     Authorization: config.authToken,
                 },
                 timeout: config.timeout,
+                signal: options.signal,
                 validateStatus: () => true,
             });
-        } catch {}
+        } catch (err) {
+            if (shouldSkip() || err.code === "ERR_CANCELED") return null;
+        }
         times.push(Date.now() - start);
     }
     return Math.max(...times) * 1.0; // baseline = worst of 3
@@ -63,17 +70,23 @@ function buildUrl(baseEndpoint, meta, payload) {
  * @param {Object} endpointInfo - { body, pathParams, queryParams } from extractor
  * @returns {Array} results with findings for the report generator
  */
-async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
+async function runFuzzer(method, endpoint, endpointInfo, onProgress, options = {}) {
     const fuzzCases = generateFuzzPayloads(endpointInfo, method);
     const allResults = loadExistingResults();
     const key = `${method} ${endpoint}`;
     const endpointFindings = [];
+    const shouldSkip = () => options.shouldSkip?.() || options.signal?.aborted;
+    let skipped = false;
 
     if (!allResults[key]) allResults[key] = [];
 
     // ── Measure baseline response time for blind-injection detection ──
     const baseUrl = config.baseURL + endpoint.replace(/\{[^}]+\}|:[a-zA-Z_]+/g, "test");
-    const baselineTime = await measureBaseline(method, baseUrl);
+    const baselineTime = await measureBaseline(method, baseUrl, options);
+
+    if (baselineTime === null || shouldSkip()) {
+        skipped = true;
+    }
 
     // ── Rate-limit detection: track rapid requests ──
     let consecutiveOk = 0;
@@ -84,6 +97,11 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
     let findingsCount = 0;
 
     for (const fuzzCase of fuzzCases) {
+        if (skipped || shouldSkip()) {
+            skipped = true;
+            break;
+        }
+
         completed++;
         const { payload, meta } = fuzzCase;
 
@@ -99,6 +117,7 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
                     "Content-Type": "application/json",
                 },
                 timeout: config.timeout,
+                signal: options.signal,
                 validateStatus: () => true, // don't throw on any status
             };
 
@@ -128,6 +147,11 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
             responseData = res.data;
             responseHeaders = res.headers;
         } catch (err) {
+            if (shouldSkip() || err.code === "ERR_CANCELED") {
+                skipped = true;
+                break;
+            }
+
             status = err.response?.status || "ERROR";
             errorData = err.response?.data || err.message;
             responseHeaders = err.response?.headers || {};
@@ -189,7 +213,7 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
     }
 
     // ── Rate-limit check at end of endpoint ──
-    if (consecutiveOk >= RATE_LIMIT_THRESHOLD) {
+    if (!skipped && consecutiveOk >= RATE_LIMIT_THRESHOLD) {
         const rateLimitFinding = {
             payload: { _note: `${consecutiveOk} consecutive requests without rate limiting` },
             status: "N/A",
@@ -213,9 +237,17 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress) {
         findingsCount++;
     }
 
+    if (skipped) {
+        endpointFindings.skipped = true;
+    }
+    endpointFindings.completed = completed;
+    endpointFindings.total = total;
+
     console.log(); // newline after progress
     saveResults(allResults);
-    console.log(`  📁 Results saved for ${key} (${findingsCount} findings)`);
+    console.log(
+        `  📁 Results saved for ${key} (${findingsCount} findings${skipped ? ", skipped" : ""})`
+    );
 
     return endpointFindings;
 }

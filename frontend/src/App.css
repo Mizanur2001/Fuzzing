@@ -431,6 +431,12 @@ textarea {
     font-size: 0.96rem;
 }
 
+.btn-sm {
+    min-height: 34px;
+    padding: 0.42rem 0.75rem;
+    font-size: 0.78rem;
+}
+
 .btn-secondary {
     background: transparent;
     border-color: rgba(169, 180, 192, 0.24);
@@ -438,6 +444,17 @@ textarea {
 
 .btn-secondary:hover:not(:disabled) {
     background: rgba(169, 180, 192, 0.08);
+}
+
+.btn-warning {
+    background: rgba(241, 189, 79, 0.12);
+    border-color: rgba(241, 189, 79, 0.42);
+    color: #ffe0a1;
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: rgba(241, 189, 79, 0.2);
+    border-color: rgba(241, 189, 79, 0.62);
 }
 
 .btn-icon {
@@ -468,6 +485,12 @@ textarea {
     margin-bottom: 0.75rem;
     flex-wrap: wrap;
     gap: 0.65rem;
+}
+
+.progress-info > div {
+    display: grid;
+    gap: 0.28rem;
+    min-width: 0;
 }
 
 .endpoint-name {
@@ -566,6 +589,16 @@ textarea {
     border-color: rgba(84, 214, 181, 0.28);
 }
 
+.endpoint-item.skipping {
+    background: rgba(241, 189, 79, 0.1);
+    border-color: rgba(241, 189, 79, 0.34);
+}
+
+.endpoint-item.skipped {
+    opacity: 0.66;
+    background: rgba(169, 180, 192, 0.06);
+}
+
 .endpoint-item.pending {
     opacity: 0.48;
 }
@@ -584,6 +617,15 @@ textarea {
 .endpoint-item.running .endpoint-icon {
     background: var(--accent);
     box-shadow: 0 0 16px rgba(84, 214, 181, 0.72);
+}
+
+.endpoint-item.skipping .endpoint-icon {
+    background: var(--warning);
+    box-shadow: 0 0 16px rgba(241, 189, 79, 0.6);
+}
+
+.endpoint-item.skipped .endpoint-icon {
+    background: var(--text-muted);
 }
 
 .method {
@@ -647,6 +689,16 @@ textarea {
 .findings-badge.running {
     color: var(--accent);
     background: rgba(84, 214, 181, 0.1);
+}
+
+.findings-badge.warning {
+    color: #ffe0a1;
+    background: rgba(241, 189, 79, 0.1);
+    border-color: rgba(241, 189, 79, 0.28);
+}
+
+.findings-badge.skipped {
+    color: var(--text-muted);
 }
 
 /* Summary Grid */
@@ -989,6 +1041,10 @@ textarea {
     .endpoint-item .findings-badge {
         grid-column: 3;
         justify-self: start;
+    }
+
+    .progress-info .btn {
+        width: 100%;
     }
 
     .ep-header {
