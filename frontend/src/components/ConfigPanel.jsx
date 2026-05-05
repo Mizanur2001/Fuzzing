@@ -16,30 +16,50 @@ export default function ConfigPanel({ config, setConfig, onStart, report, onView
     return (
         <div className="config-panel">
             <div className="panel-header">
-                <h2>Target Configuration</h2>
+                <div>
+                    <p className="eyebrow">Scan Setup</p>
+                    <h2>Target Configuration</h2>
+                </div>
                 <p className="subtitle">
                     Configure the target API server and authentication settings
                 </p>
             </div>
 
-            <div className="form-group">
-                <label>Base URL</label>
-                <input
-                    type="url"
-                    value={config.baseURL}
-                    onChange={(e) => handleChange("baseURL", e.target.value)}
-                    placeholder="http://192.168.68.124:5000"
-                />
+            <div className="config-summary">
+                <div className="summary-chip">
+                    <span className="chip-label">Timeout</span>
+                    <strong>{Number(config.timeout || 0).toLocaleString()}ms</strong>
+                </div>
+                <div className="summary-chip">
+                    <span className="chip-label">Iterations</span>
+                    <strong>{Number(config.maxIterations || 0).toLocaleString()}</strong>
+                </div>
+                <div className="summary-chip">
+                    <span className="chip-label">Auth</span>
+                    <strong>{config.authToken ? "Configured" : "Optional"}</strong>
+                </div>
             </div>
 
-            <div className="form-group">
-                <label>OpenAPI Spec URL</label>
-                <input
-                    type="url"
-                    value={config.OpenApiUrl}
-                    onChange={(e) => handleChange("OpenApiUrl", e.target.value)}
-                    placeholder="http://192.168.68.124:5000/openapi.yaml"
-                />
+            <div className="field-grid">
+                <div className="form-group">
+                    <label>Base URL</label>
+                    <input
+                        type="url"
+                        value={config.baseURL}
+                        onChange={(e) => handleChange("baseURL", e.target.value)}
+                        placeholder="http://192.168.68.124:5000"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label>OpenAPI Spec URL</label>
+                    <input
+                        type="url"
+                        value={config.OpenApiUrl}
+                        onChange={(e) => handleChange("OpenApiUrl", e.target.value)}
+                        placeholder="http://192.168.68.124:5000/openapi.yaml"
+                    />
+                </div>
             </div>
 
             <div className="form-group">
@@ -81,12 +101,13 @@ export default function ConfigPanel({ config, setConfig, onStart, report, onView
                     onClick={handleStart}
                     disabled={starting || !config.baseURL || !config.OpenApiUrl}
                 >
-                    {starting ? "Starting..." : "\uD83D\uDD25 Start Fuzzing"}
+                    <span className="btn-icon" aria-hidden="true" />
+                    {starting ? "Starting..." : "Start Fuzzing"}
                 </button>
 
                 {report && (
                     <button className="btn btn-secondary" onClick={onViewReport}>
-                        📊 View Last Report
+                        View Last Report
                     </button>
                 )}
             </div>

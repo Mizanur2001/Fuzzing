@@ -67,7 +67,10 @@ export default function Report({ report, onNewScan }) {
     return (
         <div className="report">
             <div className="panel-header">
-                <h2>Vulnerability Scan Report</h2>
+                <div>
+                    <p className="eyebrow">Assessment Results</p>
+                    <h2>Vulnerability Scan Report</h2>
+                </div>
                 <p className="subtitle">
                     Generated{" "}
                     {new Date(report.generatedAt).toLocaleString()} &middot;
@@ -240,10 +243,10 @@ export default function Report({ report, onNewScan }) {
             {/* Actions */}
             <div className="report-actions">
                 <button className="btn btn-primary" onClick={onNewScan}>
-                    🔄 New Scan
+                    New Scan
                 </button>
                 <button className="btn btn-secondary" onClick={downloadReport}>
-                    📥 Download JSON
+                    Download JSON
                 </button>
             </div>
         </div>

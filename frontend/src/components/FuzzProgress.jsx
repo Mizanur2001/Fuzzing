@@ -4,12 +4,15 @@ export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
     return (
         <div className="progress-section">
             <div className="panel-header">
-                <h2>
-                    {currentPhase === "extracting" &&
-                        "📥 Extracting OpenAPI Specification..."}
-                    {currentPhase === "fuzzing" && "🔥 Fuzzing in Progress"}
-                    {currentPhase === "reporting" && "📄 Generating Report..."}
-                </h2>
+                <div>
+                    <p className="eyebrow">Live Scan</p>
+                    <h2>
+                        {currentPhase === "extracting" &&
+                            "Extracting OpenAPI Specification"}
+                        {currentPhase === "fuzzing" && "Fuzzing in Progress"}
+                        {currentPhase === "reporting" && "Generating Report"}
+                    </h2>
+                </div>
             </div>
 
             {currentPhase === "fuzzing" && progress?.total > 0 && (
@@ -57,9 +60,7 @@ export default function FuzzProgress({ endpoints, endpointStatus, progress }) {
                                 key={i}
                                 className={`endpoint-item ${isDone ? "done" : isRunning ? "running" : "pending"}`}
                             >
-                                <span className="endpoint-icon">
-                                    {isDone ? "✅" : isRunning ? "🔄" : "⏳"}
-                                </span>
+                                <span className="endpoint-icon" aria-hidden="true" />
                                 <span
                                     className={`method method-${ep.method.toLowerCase()}`}
                                 >

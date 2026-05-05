@@ -160,16 +160,35 @@ export default function App() {
     };
 
     if (!config) {
-        return <div className="app loading">Loading...</div>;
+        return (
+            <div className="app loading">
+                <div className="loading-card">
+                    <div className="spinner" />
+                    <span>Loading workspace</span>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="app">
             <nav className="navbar">
                 <div className="navbar-brand">
-                    <span className="logo">🔒</span>
-                    <span>Fuzzing Framework</span>
+                    <span className="logo" aria-hidden="true">
+                        FF
+                    </span>
+                    <span className="brand-copy">
+                        <span>Fuzzing Framework</span>
+                        <small>API security test runner</small>
+                    </span>
                     <span className="version">v4.0.0</span>
+                </div>
+                <div className={`phase-pill phase-${phase}`}>
+                    <span className="phase-dot" />
+                    {phase === "config" && "Ready"}
+                    {phase === "running" && "Running"}
+                    {phase === "complete" && "Report Ready"}
+                    {phase === "error" && "Needs Attention"}
                 </div>
             </nav>
 
