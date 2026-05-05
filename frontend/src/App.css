@@ -530,6 +530,38 @@ textarea {
     font-family: var(--mono);
 }
 
+.eta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-top: 0.85rem;
+}
+
+.eta-card {
+    min-height: 64px;
+    padding: 0.7rem 0.8rem;
+    background: rgba(29, 35, 44, 0.62);
+    border: 1px solid rgba(57, 68, 82, 0.7);
+    border-radius: var(--radius);
+}
+
+.eta-card span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 760;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.eta-card strong {
+    color: var(--text-primary);
+    font-family: var(--mono);
+    font-size: 0.98rem;
+    font-weight: 780;
+}
+
 /* Spinner */
 .spinner-container {
     display: flex;
@@ -1030,7 +1062,8 @@ textarea {
     }
 
     .config-summary,
-    .summary-grid {
+    .summary-grid,
+    .eta-grid {
         grid-template-columns: 1fr;
     }
 

@@ -1,3 +1,27 @@
+import { useEffect, useState } from "react";
+
+const formatDuration = (ms) => {
+    if (!Number.isFinite(ms) || ms < 0) return "estimating";
+    if (ms < 1000) return "under 1s";
+
+    const totalSeconds = Math.ceil(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+};
+
+const formatClock = (time) => {
+    if (!time) return "estimating";
+    return new Date(time).toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+    });
+};
+
 export default function FuzzProgress({
     endpoints,
     endpointStatus,
@@ -6,6 +30,24 @@ export default function FuzzProgress({
     skipPending,
 }) {
     const currentPhase = progress?.phase || "extracting";
+    const [now, setNow] = useState(Date.now());
+
+    useEffect(() => {
+        if (currentPhase !== "fuzzing") return undefined;
+
+        const timer = window.setInterval(() => setNow(Date.now()), 1000);
+        return () => window.clearInterval(timer);
+    }, [currentPhase]);
+
+    const remainingMs =
+        progress?.finishAt && progress.finishAt > now
+            ? progress.finishAt - now
+            : progress?.remainingMs;
+    const scanRemainingMs =
+        progress?.scanFinishAt && progress.scanFinishAt > now
+            ? progress.scanFinishAt - now
+            : progress?.scanRemainingMs;
+    const elapsedMs = progress?.startedAt ? now - progress.startedAt : progress?.elapsedMs;
 
     return (
         <div className="progress-section">
@@ -53,6 +95,24 @@ export default function FuzzProgress({
                     </div>
                     <div className="progress-pct">
                         {Math.round((progress.completed / progress.total) * 100)}%
+                    </div>
+                    <div className="eta-grid">
+                        <div className="eta-card">
+                            <span>Route ETA</span>
+                            <strong>{formatDuration(remainingMs)}</strong>
+                        </div>
+                        <div className="eta-card">
+                            <span>Expected Finish</span>
+                            <strong>{formatClock(progress.finishAt)}</strong>
+                        </div>
+                        <div className="eta-card">
+                            <span>Scan ETA</span>
+                            <strong>{formatDuration(scanRemainingMs)}</strong>
+                        </div>
+                        <div className="eta-card">
+                            <span>Elapsed</span>
+                            <strong>{formatDuration(elapsedMs)}</strong>
+                        </div>
                     </div>
                 </div>
             )}
@@ -112,7 +172,12 @@ export default function FuzzProgress({
                                 )}
                                 {isRunning && st.total > 0 && (
                                     <span className="findings-badge running">
-                                        {st.completed}/{st.total}
+                                        ETA{" "}
+                                        {formatDuration(
+                                            st.finishAt && st.finishAt > now
+                                                ? st.finishAt - now
+                                                : st.remainingMs
+                                        )}
                                     </span>
                                 )}
                             </div>

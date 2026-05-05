@@ -21,6 +21,43 @@ export default function App() {
     const [error, setError] = useState(null);
     const [skipPending, setSkipPending] = useState(false);
     const esRef = useRef(null);
+    const endpointTimingRef = useRef({});
+    const routeDurationsRef = useRef([]);
+
+    const withEta = (data, startedAt) => {
+        const completed = Number(data.completed) || 0;
+        const total = Number(data.total) || 0;
+        const elapsedMs = Math.max(Date.now() - startedAt, 0);
+
+        if (completed <= 0 || total <= 0) {
+            return { ...data, startedAt, elapsedMs };
+        }
+
+        const remaining = Math.max(total - completed, 0);
+        const remainingMs = Math.round((elapsedMs / completed) * remaining);
+        const estimatedRouteTotalMs = Math.round((elapsedMs / completed) * total);
+        const completedRouteDurations = routeDurationsRef.current;
+        const averageRouteMs =
+            completedRouteDurations.length > 0
+                ? completedRouteDurations.reduce((sum, value) => sum + value, 0) /
+                  completedRouteDurations.length
+                : estimatedRouteTotalMs;
+        const remainingRoutes = Math.max(
+            (Number(data.totalEndpoints) || 0) - (Number(data.endpointIndex) || 0) - 1,
+            0
+        );
+        const scanRemainingMs = Math.round(remainingMs + averageRouteMs * remainingRoutes);
+
+        return {
+            ...data,
+            startedAt,
+            elapsedMs,
+            remainingMs,
+            finishAt: Date.now() + remainingMs,
+            scanRemainingMs,
+            scanFinishAt: Date.now() + scanRemainingMs,
+        };
+    };
 
     // ── SSE connection ─────────────────────────────────────
     const connectSSE = () => {
@@ -40,23 +77,38 @@ export default function App() {
 
         es.addEventListener("endpoint-start", (e) => {
             const data = JSON.parse(e.data);
+            const startedAt = Date.now();
+            endpointTimingRef.current[data.index] = { startedAt };
             setSkipPending(false);
             setEndpointStatus((prev) => ({
                 ...prev,
-                [data.index]: { ...data, status: "running", findingsCount: 0 },
+                [data.index]: {
+                    ...data,
+                    status: "running",
+                    findingsCount: 0,
+                    startedAt,
+                },
             }));
         });
 
         es.addEventListener("progress", (e) => {
             const data = JSON.parse(e.data);
-            setProgress((prev) => ({ ...prev, phase: "fuzzing", ...data }));
+            const startedAt =
+                endpointTimingRef.current[data.endpointIndex]?.startedAt || Date.now();
+            const progressWithEta = withEta(data, startedAt);
+
+            setProgress((prev) => ({ ...prev, phase: "fuzzing", ...progressWithEta }));
             setEndpointStatus((prev) => ({
                 ...prev,
                 [data.endpointIndex]: {
                     ...prev[data.endpointIndex],
-                    completed: data.completed,
-                    total: data.total,
-                    findingsCount: data.findingsCount,
+                    completed: progressWithEta.completed,
+                    total: progressWithEta.total,
+                    findingsCount: progressWithEta.findingsCount,
+                    startedAt,
+                    elapsedMs: progressWithEta.elapsedMs,
+                    remainingMs: progressWithEta.remainingMs,
+                    finishAt: progressWithEta.finishAt,
                     status:
                         prev[data.endpointIndex]?.status === "skipping"
                             ? "skipping"
@@ -79,6 +131,11 @@ export default function App() {
 
         es.addEventListener("endpoint-done", (e) => {
             const data = JSON.parse(e.data);
+            const startedAt = endpointTimingRef.current[data.index]?.startedAt;
+            if (startedAt && !data.skipped) {
+                routeDurationsRef.current.push(Date.now() - startedAt);
+            }
+
             setSkipPending(false);
             setEndpointStatus((prev) => ({
                 ...prev,
@@ -89,8 +146,10 @@ export default function App() {
                     completed: data.completed ?? prev[data.index]?.completed,
                     total: data.total ?? prev[data.index]?.total,
                     skipped: data.skipped === true,
+                    remainingMs: 0,
                 },
             }));
+            delete endpointTimingRef.current[data.index];
         });
 
         es.addEventListener("complete", async () => {
@@ -169,6 +228,8 @@ export default function App() {
         setPhase("running");
         setEndpoints([]);
         setEndpointStatus({});
+        endpointTimingRef.current = {};
+        routeDurationsRef.current = [];
         setProgress({ phase: "extracting" });
         setReport(null);
         setSkipPending(false);
@@ -197,6 +258,8 @@ export default function App() {
         setProgress(null);
         setEndpoints([]);
         setEndpointStatus({});
+        endpointTimingRef.current = {};
+        routeDurationsRef.current = [];
         setError(null);
         setSkipPending(false);
     };
