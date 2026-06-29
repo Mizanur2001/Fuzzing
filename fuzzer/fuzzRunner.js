@@ -88,9 +88,13 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress, options = {
         skipped = true;
     }
 
-    // ── Rate-limit detection: track rapid requests ──
-    let consecutiveOk = 0;
-    const RATE_LIMIT_THRESHOLD = 50; // if 50+ requests succeed without 429, flag it
+    // ── Rate-limit detection: count total requests and whether
+    //    the endpoint ever throttled. Consecutive-counter approaches
+    //    are confounded by 5xx responses that reset the counter
+    //    without indicating that the endpoint is actually rate-limited.
+    let totalRequests = 0;
+    let throttled = false;
+    const RATE_LIMIT_THRESHOLD = 50; // if 50+ requests issued without 429, flag it
 
     const total = fuzzCases.length;
     let completed = 0;
@@ -160,10 +164,10 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress, options = {
         const responseTime = Date.now() - startTime;
 
         // ── Rate-limit tracking ──
-        if (typeof status === "number" && status < 429) {
-            consecutiveOk++;
-        } else {
-            consecutiveOk = 0;
+        totalRequests++;
+        if (status === 429) throttled = true;
+        if (responseHeaders && (responseHeaders["retry-after"] || responseHeaders["Retry-After"])) {
+            throttled = true;
         }
 
         // Build the result object with metadata for the analyzer
@@ -213,9 +217,9 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress, options = {
     }
 
     // ── Rate-limit check at end of endpoint ──
-    if (!skipped && consecutiveOk >= RATE_LIMIT_THRESHOLD) {
+    if (!skipped && totalRequests >= RATE_LIMIT_THRESHOLD && !throttled) {
         const rateLimitFinding = {
-            payload: { _note: `${consecutiveOk} consecutive requests without rate limiting` },
+            payload: { _note: `${totalRequests} requests without rate limiting` },
             status: "N/A",
             response: null,
             error: null,
@@ -229,8 +233,8 @@ async function runFuzzer(method, endpoint, endpointInfo, onProgress, options = {
             findings: [{
                 type: "missing_rate_limit",
                 severity: "MEDIUM",
-                detail: `${consecutiveOk} rapid requests completed without HTTP 429 or throttling`,
-                evidence: `Endpoint ${key} accepted ${consecutiveOk}+ consecutive requests`,
+                detail: `${totalRequests} requests completed without HTTP 429 or Retry-After throttling`,
+                evidence: `Endpoint ${key} accepted ${totalRequests} requests with no throttling signal`,
             }],
         };
         endpointFindings.push(rateLimitFinding);
