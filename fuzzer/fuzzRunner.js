@@ -52,11 +52,35 @@ async function measureBaseline(method, url, options = {}) {
  * Build the actual URL by substituting path parameters with fuzz values.
  * e.g. /api/v1/server/:id  +  payload "admin"  →  /api/v1/server/admin
  */
+function safeEncode(value) {
+    const s = String(value);
+    try {
+        return encodeURIComponent(s);
+    } catch (e) {
+        // Some fuzz payloads contain malformed unicode (e.g. lone surrogates),
+        // which makes encodeURIComponent throw "URI malformed". Fall back to a
+        // byte-wise percent-encoding so the payload is still sent and the run
+        // continues instead of crashing the whole campaign.
+        let out = "";
+        for (const ch of s) {
+            try {
+                out += encodeURIComponent(ch);
+            } catch {
+                // encode the raw char code(s) as percent bytes
+                for (let i = 0; i < ch.length; i++) {
+                    out += "%" + ch.charCodeAt(i).toString(16).padStart(2, "0").toUpperCase();
+                }
+            }
+        }
+        return out;
+    }
+}
+
 function buildUrl(baseEndpoint, meta, payload) {
     if (meta.location === "path") {
         return baseEndpoint.replace(
             new RegExp(`\\{${meta.targetField}\\}|:${meta.targetField}`, "g"),
-            encodeURIComponent(String(payload))
+            safeEncode(payload)
         );
     }
     return baseEndpoint;

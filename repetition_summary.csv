@@ -1,0 +1,9 @@
+metric,mean,sd,min,max,cv_percent
+totalRequests,5330,0,5330,5330,0
+totalFindings,227.5,5.7,218,239,2.51
+uniqueFindings,56.6,0.97,54,57,1.71
+sev_CRITICAL,58.2,1.93,55,62,3.32
+sev_HIGH,36.9,0.32,36,37,0.86
+sev_MEDIUM,73.2,1.93,70,77,2.64
+sev_LOW,59.2,1.93,56,63,3.26
+wallClockSec,44.39,1.46,43.51,48.2,3.28

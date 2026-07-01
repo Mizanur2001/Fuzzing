@@ -1,0 +1,164 @@
+{
+  "n": 10,
+  "requested": 10,
+  "runs": [
+    {
+      "totalRequests": 5330,
+      "totalFindings": 224,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 57,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 72,
+      "sev_LOW": 58,
+      "wallClockSec": 45.37
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 227,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 58,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 73,
+      "sev_LOW": 59,
+      "wallClockSec": 43.63
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 224,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 57,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 72,
+      "sev_LOW": 58,
+      "wallClockSec": 43.65
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 230,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 59,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 74,
+      "sev_LOW": 60,
+      "wallClockSec": 43.51
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 218,
+      "uniqueFindings": 54,
+      "sev_CRITICAL": 55,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 70,
+      "sev_LOW": 56,
+      "wallClockSec": 44.54
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 232,
+      "uniqueFindings": 56,
+      "sev_CRITICAL": 60,
+      "sev_HIGH": 36,
+      "sev_MEDIUM": 75,
+      "sev_LOW": 61,
+      "wallClockSec": 43.77
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 227,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 58,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 73,
+      "sev_LOW": 59,
+      "wallClockSec": 43.52
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 230,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 59,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 74,
+      "sev_LOW": 60,
+      "wallClockSec": 43.91
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 224,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 57,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 72,
+      "sev_LOW": 58,
+      "wallClockSec": 43.85
+    },
+    {
+      "totalRequests": 5330,
+      "totalFindings": 239,
+      "uniqueFindings": 57,
+      "sev_CRITICAL": 62,
+      "sev_HIGH": 37,
+      "sev_MEDIUM": 77,
+      "sev_LOW": 63,
+      "wallClockSec": 48.2
+    }
+  ],
+  "summary": {
+    "totalRequests": {
+      "mean": 5330,
+      "sd": 0,
+      "min": 5330,
+      "max": 5330,
+      "cv_pct": 0
+    },
+    "totalFindings": {
+      "mean": 227.5,
+      "sd": 5.7,
+      "min": 218,
+      "max": 239,
+      "cv_pct": 2.51
+    },
+    "uniqueFindings": {
+      "mean": 56.6,
+      "sd": 0.97,
+      "min": 54,
+      "max": 57,
+      "cv_pct": 1.71
+    },
+    "sev_CRITICAL": {
+      "mean": 58.2,
+      "sd": 1.93,
+      "min": 55,
+      "max": 62,
+      "cv_pct": 3.32
+    },
+    "sev_HIGH": {
+      "mean": 36.9,
+      "sd": 0.32,
+      "min": 36,
+      "max": 37,
+      "cv_pct": 0.86
+    },
+    "sev_MEDIUM": {
+      "mean": 73.2,
+      "sd": 1.93,
+      "min": 70,
+      "max": 77,
+      "cv_pct": 2.64
+    },
+    "sev_LOW": {
+      "mean": 59.2,
+      "sd": 1.93,
+      "min": 56,
+      "max": 63,
+      "cv_pct": 3.26
+    },
+    "wallClockSec": {
+      "mean": 44.39,
+      "sd": 1.46,
+      "min": 43.51,
+      "max": 48.2,
+      "cv_pct": 3.28
+    }
+  }
+}
